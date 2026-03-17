@@ -108,7 +108,7 @@ def search_google(query, api_key):
 def analyze_intent_with_gemini(search_data, keyword, api_key):
     genai.configure(api_key=api_key)
     # נשתמש בגרסה העדכנית ביותר של ג'מיני 1.5 שכבר פתוחה לחלוטין לכולם בישראל
-    model = genai.GenerativeModel('gemini-1.5-pro-latest')
+    model = genai.GenerativeModel('gemini-1.5-flash')
     
     organic = search_data.get("organic", [])
     paa = search_data.get("peopleAlsoAsk", [])
