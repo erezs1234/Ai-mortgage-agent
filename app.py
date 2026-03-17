@@ -108,8 +108,7 @@ def search_google(query, api_key):
 def analyze_intent_with_gemini(search_data, keyword, api_key):
     genai.configure(api_key=api_key)
     # לפי הרשימה שקיבלנו, יש לך גישה למודל הכי חדש בעולם כרגע - ג'מיני 2.0!
-    model = genai.GenerativeModel('gemini-2.0-flash')
-    
+    model = genai.GenerativeModel('gemini-1.5-flash')    
     organic = search_data.get("organic", [])
     paa = search_data.get("peopleAlsoAsk", [])
     related = search_data.get("relatedSearches", [])
