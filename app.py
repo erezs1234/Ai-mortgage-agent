@@ -104,11 +104,20 @@ def search_google(query, api_key):
     response = requests.request("POST", url, headers=headers, data=payload)
     return response.json()
 
-# פונקציה לניתוח בינה מלאכותית דרך Gemini
+# פונקציה לניתוח בינה מלאכותית דרך Gemini עם מנגנון גיבוי אוטומטי
 def analyze_intent_with_gemini(search_data, keyword, api_key):
     genai.configure(api_key=api_key)
-    # לפי הרשימה שקיבלנו, יש לך גישה למודל הכי חדש בעולם כרגע - ג'מיני 2.0!
-    model = genai.GenerativeModel('gemini-1.5-flash')    
+    
+    # רשימת מודלים לניסיון בסדר עדיפות (מהקל והמהיר לכבד יותר)
+    # זה מבטיח שאם מודל אחד בתפוסה מלאה או לא זמין בחשבון, המערכת תעבור אוטומטית לבא אחריו
+    models_to_try = [
+        'gemini-2.0-flash-lite',
+        'gemini-1.5-flash',
+        'gemini-flash-latest',
+        'gemini-2.0-flash',
+        'gemini-pro-latest'
+    ]
+    
     organic = search_data.get("organic", [])
     paa = search_data.get("peopleAlsoAsk", [])
     related = search_data.get("relatedSearches", [])
@@ -151,11 +160,18 @@ def analyze_intent_with_gemini(search_data, keyword, api_key):
     - אלו חייבות להיות שאלות אנושיות, יומיומיות (עם סלנג אם צריך), שמעידות על מוכנות לקבלת החלטה או הצורך בייעוץ מקצועי עכשיו. (לדוגמה: "איך הבנק לא לוקח להורים את הבית במשכנתא הפוכה?"). ציין עבור כל שאלה מדוע היא מעידה על כוונת רכישה חזקה.
     """
     
-    try:
-        response = model.generate_content(prompt)
-        return response.text
-    except Exception as e:
-        return f"שגיאה בהפעלת ג'מיני: {e}"
+    last_error = ""
+    for model_name in models_to_try:
+        try:
+            model = genai.GenerativeModel(model_name)
+            response = model.generate_content(prompt)
+            if response and hasattr(response, 'text'):
+                return response.text
+        except Exception as e:
+            last_error = str(e)
+            continue
+            
+    return f"שגיאה בהפעלת הבינה המלאכותית: לאחר מספר ניסיונות עם מודלים שונים, המכסה של גוגל עדיין מלאה. אנא המתן דקה ונסה שוב. (שגיאה אחרונה: {last_error})"
 
 # לוגיקת האפליקציה בעת לחיצה על הכפתור
 if analyze_button:
